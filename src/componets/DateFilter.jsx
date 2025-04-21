@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
+import { getEventsForMonth } from "../utils/localStorageUtils";
+import { useCalendarDispatch, useCalendarEvents } from "../state/context";
 import { formatDate } from "../utils/formatDate";
 
-export const DateFilter = ({ valueDate, onChange }) => {
-  const [value, setValue] = useState(() => formatDate(valueDate));
+export const DateFilter = () => {
+  const dispatch = useCalendarDispatch();
+  const { activeMonth } = useCalendarEvents();
+  const [value, setValue] = useState(`${activeMonth}-${new Date().getDate()}`);
 
   const inputDate = useRef(null);
 
@@ -10,29 +14,22 @@ export const DateFilter = ({ valueDate, onChange }) => {
     inputDate.current.showPicker();
   };
 
-  useEffect(() => {
-    const formattedPropDate = formatDate(valueDate);
-    if (formattedPropDate !== value) {
-      console.log(
-        "DateFilter оновлює внутрішній стан від valueDate prop:",
-        formattedPropDate
-      );
-      setValue(formattedPropDate);
-    }
-  }, [valueDate]);
-
   const handleInputChange = (event) => {
     const newFullDate = event.target.value;
 
-    if (!newFullDate) return;
+    setValue(newFullDate);
 
     const newMonthPart = newFullDate.slice(0, 7);
 
-    setValue(newFullDate);
+    const notes = getEventsForMonth(newMonthPart);
 
-    if (onChange) {
-      onChange(newMonthPart);
-    }
+    dispatch({
+      type: "LOAD",
+      payload: {
+        activeMonth: newMonthPart,
+        notes,
+      },
+    });
   };
 
   const handleMonthShift = (monthsToAdd) => {
@@ -44,13 +41,20 @@ export const DateFilter = ({ valueDate, onChange }) => {
     current.setMonth(current.getMonth() + monthsToAdd);
 
     const newFullDate = formatDate(current);
-    const newMonthPart = newFullDate.slice(0, 7);
 
     setValue(newFullDate);
 
-    if (onChange) {
-      onChange(newMonthPart);
-    }
+    const newMonthPart = newFullDate.slice(0, 7);
+
+    const notes = getEventsForMonth(newMonthPart);
+
+    dispatch({
+      type: "LOAD",
+      payload: {
+        activeMonth: newMonthPart,
+        notes,
+      },
+    });
   };
 
   return (

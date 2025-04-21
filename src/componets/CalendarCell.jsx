@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { CalendarForm } from "./CalendarForm";
 import { EditableList } from "./EditableList";
+import { useCalendarDispatch } from "../state/context";
 
-export const CalendarCell = ({ day, onCreate, onUpdate, onDelete }) => {
+export const CalendarCell = ({ day }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentNote, setCurrentNote] = useState(null);
+  const dispatch = useCalendarDispatch();
 
   const date = new Date(day.iso);
   const cellDate = date.getDate();
@@ -16,14 +18,23 @@ export const CalendarCell = ({ day, onCreate, onUpdate, onDelete }) => {
         ...formData,
         id: currentNote.id,
       };
-      onUpdate(updatedNote);
+
+      dispatch({
+        type: "UPDATE",
+        note: updatedNote,
+      });
+
       console.log("formAction -> onUpdate:", updatedNote);
     } else {
       const newNote = {
         ...formData,
         id: Date.now(),
       };
-      onCreate(newNote);
+
+      dispatch({
+        type: "CREATE",
+        note: newNote,
+      });
     }
 
     handleClose();
@@ -44,9 +55,12 @@ export const CalendarCell = ({ day, onCreate, onUpdate, onDelete }) => {
   };
 
   const handleRemoveNote = (noteIdToDelete) => {
-    onDelete({
-      id: noteIdToDelete,
-      iso: day.iso,
+    dispatch({
+      type: "DELETE",
+      payload: {
+        id: noteIdToDelete,
+        iso: day.iso,
+      },
     });
   };
 

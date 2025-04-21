@@ -1,17 +1,27 @@
 import { useState } from "react";
 import { DateFilter } from "./DateFilter";
 import { CalendarForm } from "./CalendarForm";
+import { useCalendarDispatch, useCalendarEvents } from "../state/context";
 
-export const CalendarHeader = ({ valueDate, onChange, onCreate }) => {
+export const CalendarHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const { activeMonth } = useCalendarEvents();
+  const dispatch = useCalendarDispatch();
 
   const handleCreate = (formData) => {
     const newNote = {
       ...formData,
       id: Date.now(),
     };
-    onCreate(newNote);
+
+    dispatch({
+      type: "CREATE",
+      note: newNote,
+    });
   };
+
+  const valueDate = `${activeMonth}-${new Date().getDate()}`;
 
   return (
     <div className="flex flex-col gap-8 items-center justify-between lg:flex-row bg-[var(--c-dark-cyan)] p-[20px]">
@@ -36,7 +46,7 @@ export const CalendarHeader = ({ valueDate, onChange, onCreate }) => {
       <h2 className="uppercase text-3xl lg:text-5xl relative lg:translate-x-[50%]">
         {new Date(valueDate).toLocaleString("uk-UA", { month: "long" })}
       </h2>
-      <DateFilter valueDate={valueDate} onChange={onChange} />
+      <DateFilter />
       {isOpen && (
         <CalendarForm
           note={{ iso: valueDate }}

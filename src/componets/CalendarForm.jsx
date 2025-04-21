@@ -56,14 +56,12 @@ export const CalendarForm = ({ note, onClose, onSave }) => {
         </label>
         <label className="flex flex-col items-start gap-[8px]">
           Date
-          {/* <div className="relative after:block after:content-[''] after:absolute after:top-0 after:right-0 after:bottom-0 after:w-[30px] after:bg-gray-100"> */}
           <input
             type="date"
             value={isoDate}
             onChange={handleChangeDate}
             className=" border border-[var(--border-color)] py-[5px] px-[10px]"
           />
-          {/* </div> */}
         </label>
 
         <button
